@@ -1,0 +1,11 @@
+{
+  "name": "meleedunumerique",
+  "version": "1.0.0",
+  "description": "Timelapse viewer for GitHub projects",
+  "scripts": {
+    "timelapse:capture": "node .timelapse/capture.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  }
+}

@@ -1,0 +1,36 @@
+name: Timelapse Capture
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install --save-dev playwright
+
+      - name: Run timelapse capture
+        run: node .timelapse/capture.js
+
+      - name: Commit snapshots
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .timelapse/snapshots -f
+          git add .timelapse/index.json || true
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update timelapse snapshots"
+          git push origin HEAD:${{ github.ref }}
+        continue-on-error: true
