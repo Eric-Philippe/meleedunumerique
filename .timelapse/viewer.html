@@ -333,9 +333,14 @@
     </div>
 
     <script>
+      // Detect base path for GitHub Pages
+      const basePath = window.location.pathname.includes("/meleedunumerique/")
+        ? "/meleedunumerique/"
+        : "/";
+
       const config = {
-        snapshotFolder: ".timelapse/snapshots",
-        indexFile: ".timelapse/index.json",
+        snapshotFolder: `${basePath}.timelapse/snapshots`,
+        indexFile: `${basePath}.timelapse/index.json`,
       };
 
       let snapshots = [];
