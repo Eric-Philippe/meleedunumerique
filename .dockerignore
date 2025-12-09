@@ -1,0 +1,47 @@
+# Git
+
+.git
+.gitignore
+
+# IDE
+
+.vscode
+.idea
+_.swp
+_.swo
+
+# Documentation
+
+README.md
+\*.md
+
+# Node (if any)
+
+node_modules
+package.json
+package-lock.json
+
+# Test files
+
+\*\_test.go
+website_test
+
+# GitHub workflows
+
+.github
+
+# Timelapse data (will be fetched from GitHub)
+
+.timelapse
+
+# Build artifacts
+
+_.exe
+_.dll
+_.so
+_.dylib
+
+# Misc
+
+.DS_Store
+Thumbs.db

@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "website_test/**"
+      - ".timelapse/**"
+      - ".timelapse.json"
   workflow_dispatch:
 
 jobs:
@@ -40,4 +44,16 @@ jobs:
           git push origin HEAD:${{ github.ref }} --force-with-lease
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Notify Timelapse API
+        if: ${{ vars.TIMELAPSE_API_URL }}
+        run: |
+          echo "Notifying API at ${{ vars.TIMELAPSE_API_URL }}/sync"
+          curl -X POST "${{ vars.TIMELAPSE_API_URL }}/sync" \
+            -H "Content-Type: application/json" \
+            --max-time 60 \
+            --retry 3 \
+            --retry-delay 5 \
+            || echo "API notification failed (non-blocking)"
         continue-on-error: true
