@@ -31,10 +31,8 @@ FROM golang:1.23-alpine AS api-builder
 
 WORKDIR /app
 
-# Install git (needed for go modules that reference git repos)
-RUN apk add --no-cache git
-
-# Copy API source code
+# Copy go.mod and source code
+COPY api/go.mod ./
 COPY api/*.go ./
 
 # Create static directory and copy built frontend
