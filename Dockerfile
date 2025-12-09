@@ -1,5 +1,5 @@
 # =============================================================================
-# Multi-stage Dockerfile for Mêlée du Numérique Timelapse
+# Multi-stage Dockerfile for "Mêlée du Numérique Timelapse" application
 # Stage 1: Build React frontend
 # Stage 2: Build Go API with embedded frontend
 # Stage 3: Minimal runtime image
