@@ -34,12 +34,6 @@ WORKDIR /app
 # Install git (needed for go modules that reference git repos)
 RUN apk add --no-cache git
 
-# Copy go module files first for better layer caching
-COPY api/go.mod api/go.sum ./
-
-# Download dependencies
-RUN go mod download
-
 # Copy API source code
 COPY api/*.go ./
 
