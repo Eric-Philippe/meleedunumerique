@@ -23,6 +23,9 @@
   position: relative;
   animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideUp {
@@ -60,6 +63,8 @@
 .about-content {
   padding: 40px 32px 32px;
   text-align: center;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .about-logo {

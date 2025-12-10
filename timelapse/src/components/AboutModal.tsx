@@ -62,21 +62,11 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
           <div className="about-description">
             <p>
               Naviguez à travers chaque itération de vos ateliers de live
-              coding, capturant chaque modification et évolution. Observez
-              l'histoire de votre code se dérouler, revivez les moments clés et
-              analysez les changements au fil du temps.
+              coding, capturant chaque modification et évolution.
             </p>
           </div>
 
           <div className="about-features">
-            <div className="feature">
-              <span className="feature-icon">💾</span>
-              <span>Aucune donnée stockée</span>
-            </div>
-            <div className="feature">
-              <span className="feature-icon">🎯</span>
-              <span>Site hébergé localement à Toulouse</span>
-            </div>
             <div className="feature">
               <span className="feature-icon">⏪</span>
               <span>
@@ -88,6 +78,10 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
               <span className="feature-subtext">
                 Contactez Eric PHILIPPE : ericphlpp@proton.me
               </span>
+            </div>
+            <div className="feature">
+              <span className="feature-icon">💾</span>
+              <span>Aucune donnée stockée, site hébergé à Toulouse !</span>
             </div>
           </div>
 
