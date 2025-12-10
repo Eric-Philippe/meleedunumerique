@@ -55,11 +55,13 @@ async function captureSnapshots() {
         fs.mkdirSync(snapshotPath, { recursive: true });
       }
 
-      // Copy target folder to snapshot
+      // Copy target folder contents to snapshot/target
       const sourceDir = path.join(process.cwd(), config.targetFolder);
-      const destDir = path.join(snapshotPath, config.targetFolder);
+      const targetDir = path.join(snapshotPath, "target");
 
-      execSync(`cp -r ${sourceDir} ${destDir}`);
+      // Create target directory and copy contents
+      fs.mkdirSync(targetDir, { recursive: true });
+      execSync(`cp -r ${sourceDir}/* ${targetDir}/`);
 
       // Get commit metadata
       const author = execSync(`git show -s --format='%an' ${commit.hash}`, {
