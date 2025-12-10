@@ -22,19 +22,23 @@ async function captureSnapshots() {
     fs.mkdirSync(snapshotDir, { recursive: true });
   }
 
-  // Get all commits for target folder
-  const commits = execSync(
-    `git log --follow --oneline -- ${config.targetFolder} | head -50`,
+  // Get the latest commit for target folder
+  const commitLine = execSync(
+    `git log -1 --oneline -- ${config.targetFolder}`,
     { encoding: "utf-8" }
-  )
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const [hash, ...messageParts] = line.split(" ");
-      return { hash: hash.trim(), message: messageParts.join(" ").trim() };
-    });
+  ).trim();
 
-  console.log(`Found ${commits.length} commits for ${config.targetFolder}`);
+  const [hash, ...messageParts] = commitLine.split(" ");
+  const commits = [
+    {
+      hash: hash.trim(),
+      message: messageParts.join(" ").trim(),
+    },
+  ];
+
+  console.log(
+    `Capturing latest commit for ${config.targetFolder}: ${commits[0].hash}`
+  );
 
   const snapshots = [];
   const browser = await chromium.launch();
