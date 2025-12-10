@@ -18,11 +18,11 @@ import (
 var staticFiles embed.FS
 
 var (
-	timelapsePath = getEnv("TIMELAPSE_PATH", "../.timelapse")
 	githubOwner   = getEnv("GITHUB_OWNER", "Eric-Philippe")
 	githubRepo    = getEnv("GITHUB_REPO", "meleedunumerique")
 	githubBranch  = getEnv("GITHUB_BRANCH", "main")
 	syncMutex     sync.Mutex
+	timelapsePath string
 )
 
 func getEnv(key, fallback string) string {
@@ -32,8 +32,31 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+func initializeTimelapsePath() string {
+	// Try to get from environment first
+	if path := os.Getenv("TIMELAPSE_PATH"); path != "" {
+		return path
+	}
+
+	// Try current directory first (common in production)
+	if _, err := os.Stat(".timelapse"); err == nil {
+		return ".timelapse"
+	}
+
+	// Try parent directory (common in development)
+	if _, err := os.Stat("../.timelapse"); err == nil {
+		return "../.timelapse"
+	}
+
+	// Default fallback (will be created if needed)
+	return ".timelapse"
+}
+
 func main() {
 	port := getEnv("PORT", "8080")
+	timelapsePath = initializeTimelapsePath()
+
+	log.Printf("Using timelapse directory: %s", timelapsePath)
 
 	// Ensure data directory exists
 	os.MkdirAll(filepath.Join(timelapsePath, "snapshots"), 0755)
