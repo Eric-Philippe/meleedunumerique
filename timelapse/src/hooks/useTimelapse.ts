@@ -96,16 +96,18 @@ export function useTimelapse(): UseTimelapseReturn {
   );
 
   const goNext = useCallback(() => {
-    if (currentIndex < snapshots.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+    console.log(currentIndex, snapshots.length);
+
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
     }
   }, [currentIndex, snapshots.length]);
 
   const goPrevious = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+    if (currentIndex < snapshots.length - 1) {
+      setCurrentIndex(currentIndex + 1);
     }
-  }, [currentIndex]);
+  }, [currentIndex, snapshots.length]);
 
   return {
     snapshots,
@@ -118,7 +120,7 @@ export function useTimelapse(): UseTimelapseReturn {
     goToSnapshot,
     goNext,
     goPrevious,
-    hasNext: currentIndex < snapshots.length - 1,
-    hasPrevious: currentIndex > 0,
+    hasNext: currentIndex > 0,
+    hasPrevious: currentIndex < snapshots.length - 1,
   };
 }

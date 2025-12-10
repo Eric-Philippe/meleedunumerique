@@ -16,6 +16,7 @@ export function SnapshotViewer({
 }: SnapshotViewerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeWrapperRef = useRef<HTMLDivElement>(null);
+  const touchOverlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (iframeRef.current && document) {
@@ -24,6 +25,10 @@ export function SnapshotViewer({
         iframe.contentDocument || iframe.contentWindow?.document;
 
       if (iframeDoc) {
+        // Clear all previous styles before loading new document
+        const existingStyles = iframeDoc.querySelectorAll("style");
+        existingStyles.forEach((style) => style.remove());
+
         iframeDoc.open();
         iframeDoc.write(document);
         iframeDoc.close();
@@ -50,6 +55,27 @@ export function SnapshotViewer({
     }
   }, [document, onTouchStart, onTouchEnd]);
 
+  // Ensure touch overlay also captures events as fallback
+  useEffect(() => {
+    const overlay = touchOverlayRef.current;
+    if (!overlay || !onTouchStart || !onTouchEnd) return;
+
+    overlay.addEventListener("touchstart", (e: TouchEvent) => {
+      const syntheticEvent = {
+        touches: e.touches,
+        changedTouches: e.changedTouches,
+      } as unknown as React.TouchEvent;
+      onTouchStart(syntheticEvent);
+    });
+
+    overlay.addEventListener("touchend", (e: TouchEvent) => {
+      const syntheticEvent = {
+        changedTouches: e.changedTouches,
+      } as unknown as React.TouchEvent;
+      onTouchEnd(syntheticEvent);
+    });
+  }, [onTouchStart, onTouchEnd]);
+
   return (
     <div className="snapshot-viewer" ref={iframeWrapperRef}>
       {loading && (
@@ -64,6 +90,7 @@ export function SnapshotViewer({
         title="Snapshot Preview"
         sandbox="allow-scripts allow-same-origin"
       />
+      <div className="snapshot-touch-overlay" ref={touchOverlayRef} />
     </div>
   );
 }

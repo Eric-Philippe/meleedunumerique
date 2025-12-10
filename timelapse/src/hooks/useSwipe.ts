@@ -30,12 +30,12 @@ export function useSwipe({
       const diff = touchStartX.current - touchEndX;
 
       if (Math.abs(diff) > SWIPE_THRESHOLD) {
-        if (diff > 0 && onSwipeRight) {
-          // Swiped left -> go to previous
-          onSwipeRight();
-        } else if (diff < 0 && onSwipeLeft) {
-          // Swiped right -> go to next
+        if (diff > 0 && onSwipeLeft) {
+          // Swiped left (start > end)
           onSwipeLeft();
+        } else if (diff < 0 && onSwipeRight) {
+          // Swiped right (start < end)
+          onSwipeRight();
         }
       }
 

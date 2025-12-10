@@ -27,8 +27,8 @@ function App() {
 
   // Swipe navigation for mobile
   const swipeHandlers = useSwipe({
-    onSwipeLeft: () => hasPrevious && goPrevious(),
-    onSwipeRight: () => hasNext && goNext(),
+    onSwipeLeft: () => hasNext && goNext(),
+    onSwipeRight: () => hasPrevious && goPrevious(),
   });
 
   // Keyboard navigation
