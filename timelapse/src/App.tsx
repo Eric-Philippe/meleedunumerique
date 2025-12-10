@@ -27,8 +27,8 @@ function App() {
 
   // Swipe navigation for mobile
   const swipeHandlers = useSwipe({
-    onSwipeLeft: () => hasNext && goNext(),
-    onSwipeRight: () => hasPrevious && goPrevious(),
+    onSwipeLeft: () => hasPrevious && goPrevious(),
+    onSwipeRight: () => hasNext && goNext(),
   });
 
   // Keyboard navigation
@@ -71,7 +71,12 @@ function App() {
       {!error && snapshots.length > 0 && (
         <>
           {/* Snapshot Viewer */}
-          <SnapshotViewer document={currentDocument} loading={loading} />
+          <SnapshotViewer
+            document={currentDocument}
+            loading={loading}
+            onTouchStart={swipeHandlers.onTouchStart}
+            onTouchEnd={swipeHandlers.onTouchEnd}
+          />
 
           {/* Navigation Arrows (desktop) */}
           <div className="nav-arrows">

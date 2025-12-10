@@ -4,10 +4,18 @@ import "./SnapshotViewer.css";
 interface SnapshotViewerProps {
   document: string;
   loading: boolean;
+  onTouchStart?: (e: React.TouchEvent) => void;
+  onTouchEnd?: (e: React.TouchEvent) => void;
 }
 
-export function SnapshotViewer({ document, loading }: SnapshotViewerProps) {
+export function SnapshotViewer({
+  document,
+  loading,
+  onTouchStart,
+  onTouchEnd,
+}: SnapshotViewerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (iframeRef.current && document) {
@@ -19,12 +27,31 @@ export function SnapshotViewer({ document, loading }: SnapshotViewerProps) {
         iframeDoc.open();
         iframeDoc.write(document);
         iframeDoc.close();
+
+        // Add touch event listeners to the iframe document
+        if (onTouchStart && onTouchEnd) {
+          iframeDoc.addEventListener("touchstart", (e: TouchEvent) => {
+            // Convert native touch event to React-like event
+            const syntheticEvent = {
+              touches: e.touches,
+              changedTouches: e.changedTouches,
+            } as unknown as React.TouchEvent;
+            onTouchStart(syntheticEvent);
+          });
+
+          iframeDoc.addEventListener("touchend", (e: TouchEvent) => {
+            const syntheticEvent = {
+              changedTouches: e.changedTouches,
+            } as unknown as React.TouchEvent;
+            onTouchEnd(syntheticEvent);
+          });
+        }
       }
     }
-  }, [document]);
+  }, [document, onTouchStart, onTouchEnd]);
 
   return (
-    <div className="snapshot-viewer">
+    <div className="snapshot-viewer" ref={iframeWrapperRef}>
       {loading && (
         <div className="snapshot-loading">
           <div className="loading-spinner"></div>
