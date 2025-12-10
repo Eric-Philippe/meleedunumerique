@@ -355,10 +355,16 @@ func syncFromGitHub() error {
 func syncSnapshot(hash string) error {
 	snapshotDir := filepath.Join(timelapsePath, "snapshots", hash)
 
-	// Check if already exists
-	if _, err := os.Stat(snapshotDir); err == nil {
-		log.Printf("Snapshot %s already exists, skipping", hash)
-		return nil
+	// Check if already exists and has files
+	if info, err := os.Stat(snapshotDir); err == nil && info.IsDir() {
+		// Check if directory is not empty
+		entries, err := os.ReadDir(snapshotDir)
+		if err == nil && len(entries) > 0 {
+			log.Printf("Snapshot %s already exists with %d items, skipping", hash, len(entries))
+			return nil
+		}
+		// Directory is empty or we can't read it, proceed with sync
+		log.Printf("Snapshot %s directory exists but is empty, re-syncing", hash)
 	}
 
 	// Create snapshot directory
