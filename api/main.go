@@ -15,7 +15,6 @@ import (
 	"time"
 )
 
-//go:embed static/*
 var staticFiles embed.FS
 
 var (
@@ -319,15 +318,36 @@ func syncSnapshot(hash string) error {
 		return nil
 	}
 
-	log.Printf("Fetching snapshot: %s", hash)
+	// Create snapshot directory
+	if err := os.MkdirAll(snapshotDir, 0755); err != nil {
+		return fmt.Errorf("failed to create snapshot dir: %w", err)
+	}
 
-	// Use GitHub API to list directory contents
-	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/.timelapse/snapshots/%s?ref=%s",
-		githubOwner, githubRepo, hash, githubBranch)
+	log.Printf("Fetching snapshot: %s", hash)
+	count := 0
+	if err := syncSnapshotDir(hash, "", snapshotDir, &count); err != nil {
+		return err
+	}
+
+	log.Printf("Synced snapshot: %s (%d files)", hash, count)
+	return nil
+}
+
+// syncSnapshotDir recursively syncs a directory from GitHub
+func syncSnapshotDir(hash, relPath, localDir string, fileCount *int) error {
+	// Build the GitHub API URL
+	var apiURL string
+	if relPath == "" {
+		apiURL = fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/.timelapse/snapshots/%s?ref=%s",
+			githubOwner, githubRepo, hash, githubBranch)
+	} else {
+		apiURL = fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/.timelapse/snapshots/%s/%s?ref=%s",
+			githubOwner, githubRepo, hash, relPath, githubBranch)
+	}
 
 	resp, err := http.Get(apiURL)
 	if err != nil {
-		return fmt.Errorf("failed to list snapshot: %w", err)
+		return fmt.Errorf("failed to list directory: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -346,31 +366,42 @@ func syncSnapshot(hash string) error {
 		return fmt.Errorf("failed to decode file list: %w", err)
 	}
 
-	// Create snapshot directory
-	if err := os.MkdirAll(snapshotDir, 0755); err != nil {
-		return fmt.Errorf("failed to create snapshot dir: %w", err)
-	}
-
-	// Download each file
+	// Process each item
 	for _, file := range files {
-		if file.Type != "file" {
-			continue
-		}
+		if file.Type == "file" {
+			// Download file
+			fileData, err := fetchURL(file.DownloadURL)
+			if err != nil {
+				log.Printf("Warning: Failed to download %s: %v", file.Name, err)
+				continue
+			}
 
-		fileData, err := fetchURL(file.DownloadURL)
-		if err != nil {
-			log.Printf("Warning: Failed to download %s: %v", file.Name, err)
-			continue
-		}
+			filePath := filepath.Join(localDir, file.Name)
+			if err := os.WriteFile(filePath, fileData, 0644); err != nil {
+				log.Printf("Warning: Failed to save %s: %v", file.Name, err)
+				continue
+			}
+			*fileCount++
+		} else if file.Type == "dir" {
+			// Recursively sync subdirectory
+			newLocalDir := filepath.Join(localDir, file.Name)
+			if err := os.MkdirAll(newLocalDir, 0755); err != nil {
+				log.Printf("Warning: Failed to create directory %s: %v", file.Name, err)
+				continue
+			}
 
-		filePath := filepath.Join(snapshotDir, file.Name)
-		if err := os.WriteFile(filePath, fileData, 0644); err != nil {
-			log.Printf("Warning: Failed to save %s: %v", file.Name, err)
-			continue
+			newRelPath := file.Name
+			if relPath != "" {
+				newRelPath = filepath.Join(relPath, file.Name)
+			}
+
+			if err := syncSnapshotDir(hash, newRelPath, newLocalDir, fileCount); err != nil {
+				log.Printf("Warning: Failed to sync directory %s: %v", file.Name, err)
+				// Continue with other files
+			}
 		}
 	}
 
-	log.Printf("Synced snapshot: %s (%d files)", hash, len(files))
 	return nil
 }
 
@@ -392,6 +423,14 @@ func fetchURL(url string) ([]byte, error) {
 
 // handleIndex returns the index.json content
 func handleIndex(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	if r.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		return
+	}
+
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -400,13 +439,18 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	indexPath := filepath.Join(timelapsePath, "index.json")
 	data, err := os.ReadFile(indexPath)
 	if err != nil {
-		log.Printf("Error reading index.json: %v", err)
-		http.Error(w, "Failed to read index", http.StatusInternalServerError)
+		log.Printf("Error reading index.json at %s: %v", indexPath, err)
+		// Return empty array if index doesn't exist
+		w.Write([]byte("[]"))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	if len(data) == 0 {
+		log.Println("Warning: index.json is empty")
+		w.Write([]byte("[]"))
+		return
+	}
+
 	w.Write(data)
 }
 
@@ -504,6 +548,10 @@ func listSnapshotContents(w http.ResponseWriter, dir, hash string) {
 		log.Printf("Error walking snapshot dir: %v", err)
 		http.Error(w, "Failed to list snapshot contents", http.StatusInternalServerError)
 		return
+	}
+
+	if files == nil {
+		files = []string{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

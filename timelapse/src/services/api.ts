@@ -12,7 +12,19 @@ export const api = {
     if (!response.ok) {
       throw new Error(`Failed to fetch index: ${response.status}`);
     }
-    return response.json();
+    const text = await response.text();
+    if (!text) {
+      throw new Error("Empty response from index endpoint");
+    }
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      throw new Error(
+        `Failed to parse index JSON: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }. Response: ${text.substring(0, 100)}`
+      );
+    }
   },
 
   /**
@@ -23,7 +35,19 @@ export const api = {
     if (!response.ok) {
       throw new Error(`Failed to fetch snapshot contents: ${response.status}`);
     }
-    return response.json();
+    const text = await response.text();
+    if (!text) {
+      throw new Error("Empty response from snapshot contents endpoint");
+    }
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      throw new Error(
+        `Failed to parse snapshot contents JSON: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }. Response: ${text.substring(0, 100)}`
+      );
+    }
   },
 
   /**
