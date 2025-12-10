@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "website_test/**"
+      - "test_web/**"
       - ".timelapse/**"
       - ".timelapse.json"
   workflow_dispatch:
