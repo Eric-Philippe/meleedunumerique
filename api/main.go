@@ -60,14 +60,33 @@ func main() {
 	log.Printf("Using timelapse directory: %s", timelapsePath)
 
 	// Ensure data directory exists
-	os.MkdirAll(filepath.Join(timelapsePath, "snapshots"), 0755)
+	snapshotsDir := filepath.Join(timelapsePath, "snapshots")
+	if err := os.MkdirAll(snapshotsDir, 0755); err != nil {
+		log.Printf("Error creating snapshots directory: %v", err)
+	}
+
+	// Log directory information
+	absPath, _ := filepath.Abs(timelapsePath)
+	log.Printf("Absolute path: %s", absPath)
+	
+	// Check if index.json exists
+	indexPath := filepath.Join(timelapsePath, "index.json")
+	if _, err := os.Stat(indexPath); err == nil {
+		log.Printf("Found existing index.json")
+	} else {
+		log.Printf("No index.json found, will create during sync")
+	}
 
 	// Initial sync on startup (optional, can be disabled)
 	if getEnv("SYNC_ON_STARTUP", "true") == "true" {
 		log.Println("Performing initial sync from GitHub...")
 		if err := syncFromGitHub(); err != nil {
-			log.Printf("Warning: Initial sync failed: %v", err)
+			log.Printf("Error: Initial sync failed: %v", err)
+		} else {
+			log.Println("Initial sync completed successfully")
 		}
+	} else {
+		log.Println("SYNC_ON_STARTUP is disabled")
 	}
 
 	// Background sync is optional - mainly rely on webhook from GitHub Actions
@@ -587,11 +606,16 @@ func listSnapshotContents(w http.ResponseWriter, dir, hash string) {
 
 // serveFile serves a file with appropriate content type
 func serveFile(w http.ResponseWriter, r *http.Request, filePath string) {
+	absPath, _ := filepath.Abs(filePath)
+	log.Printf("Attempting to serve file: %s (absolute: %s)", filePath, absPath)
+	
 	file, err := os.Open(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
+			log.Printf("File not found: %s", absPath)
 			http.Error(w, "File not found", http.StatusNotFound)
 		} else {
+			log.Printf("Error opening file: %v", err)
 			http.Error(w, "Failed to open file", http.StatusInternalServerError)
 		}
 		return
@@ -601,6 +625,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, filePath string) {
 	// Get file info for content type detection
 	stat, err := file.Stat()
 	if err != nil {
+		log.Printf("Error getting file stat: %v", err)
 		http.Error(w, "Failed to get file info", http.StatusInternalServerError)
 		return
 	}
