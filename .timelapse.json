@@ -1,5 +1,5 @@
 {
-  "targetFolder": "web",
+  "targetFolder": "web_test",
   "branch": "main",
   "snapshotFolder": ".timelapse/snapshots",
   "enabled": true
