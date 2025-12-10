@@ -149,7 +149,9 @@ function App() {
             <div
               className="progress-fill"
               style={{
-                width: `${((currentIndex + 1) / snapshots.length) * 100}%`,
+                width: `${
+                  ((snapshots.length - currentIndex) / snapshots.length) * 100
+                }%`,
               }}
             />
           </div>
