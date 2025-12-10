@@ -54,33 +54,45 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
             </svg>
           </div>
 
-          <h2>Timelapse - FULLY GENERATED RIGHT NOW</h2>
-          <p className="about-subtitle">Website Time Machine</p>
+          <h2>Mêlée du numérique - Ynov</h2>
+          <p className="about-subtitle">
+            Eric PHILIPPE - Lucas LASBENNES - Gauthier CENES
+          </p>
 
           <div className="about-description">
             <p>
-              Travel through time and witness the evolution of websites. Each
-              snapshot captures a moment in the development journey.
+              Naviguez à travers chaque itération de vos ateliers de live
+              coding, capturant chaque modification et évolution. Observez
+              l'histoire de votre code se dérouler, revivez les moments clés et
+              analysez les changements au fil du temps.
             </p>
           </div>
 
           <div className="about-features">
             <div className="feature">
-              <span className="feature-icon">📸</span>
-              <span>View snapshots</span>
-            </div>
-            <div className="feature">
-              <span className="feature-icon">⏪</span>
-              <span>Navigate history</span>
+              <span className="feature-icon">💾</span>
+              <span>Aucune donnée stockée</span>
             </div>
             <div className="feature">
               <span className="feature-icon">🎯</span>
-              <span>Track changes</span>
+              <span>Site hébergé localement à Toulouse</span>
+            </div>
+            <div className="feature">
+              <span className="feature-icon">⏪</span>
+              <span>
+                Des questions, curiosités, aller plus loin, des demandes
+                d'interventions ?
+              </span>
+            </div>
+            <div className="feature">
+              <span className="feature-subtext">
+                Contactez Eric PHILIPPE : ericphlpp@proton.me
+              </span>
             </div>
           </div>
 
           <div className="about-footer">
-            <p>Built with ❤️</p>
+            <p>Built by Eric PHILIPPE - ericphlpp@proton.me</p>
           </div>
         </div>
       </div>
