@@ -117,10 +117,22 @@ async function captureSnapshots() {
     console.warn("Could not checkout branch");
   }
 
-  // Save index
-  fs.writeFileSync(indexFile, JSON.stringify(snapshots.reverse(), null, 2));
+  // Save index - append to existing entries
+  let allSnapshots = [];
+  if (fs.existsSync(indexFile)) {
+    try {
+      const existingContent = fs.readFileSync(indexFile, "utf-8");
+      allSnapshots = JSON.parse(existingContent);
+    } catch (err) {
+      console.warn("Could not read existing index.json, starting fresh");
+    }
+  }
+
+  // Append new snapshots
+  allSnapshots.push(...snapshots);
+  fs.writeFileSync(indexFile, JSON.stringify(allSnapshots, null, 2));
   console.log(
-    `\n✓ Timelapse capture complete! ${snapshots.length} snapshots saved`
+    `\n✓ Timelapse capture complete! ${snapshots.length} snapshots added (${allSnapshots.length} total)`
   );
 }
 
