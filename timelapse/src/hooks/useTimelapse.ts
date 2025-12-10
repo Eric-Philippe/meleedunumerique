@@ -70,7 +70,7 @@ export function useTimelapse(): UseTimelapseReturn {
         // Build the document for rendering
         const doc = await api.buildSnapshotDocument(
           snapshot.hash,
-          snapshot.folder,
+          "target",
           contents.files
         );
         setCurrentDocument(doc);
