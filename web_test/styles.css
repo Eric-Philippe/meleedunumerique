@@ -1,5 +1,5 @@
 body {
-  background-color: #ffffff;
+  background-color: #00ffbf;
 }
 
 button {
@@ -45,4 +45,10 @@ button {
 
 #titre-roblox {
   color: red;
+}
+
+#newyork-carte {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
