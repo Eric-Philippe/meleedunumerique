@@ -1,3 +1,44 @@
 body {
   background-color: #ffffff;
 }
+
+button {
+  background-color: plum;
+}
+
+.heart-btn {
+  margin-left: 30px;
+  position: relative;
+  width: 80px;
+  height: 70px;
+  background: red;
+  border: none;
+  cursor: pointer;
+  transform: rotate(-45deg);
+  border-radius: 20px 20px 0 0;
+  transition: 0.2s;
+}
+
+.heart-btn::before,
+.heart-btn::after {
+  content: "";
+  position: absolute;
+  width: 80px;
+  height: 70px;
+  background: red;
+  border-radius: 50%;
+}
+
+.heart-btn::before {
+  top: -35px;
+  left: 0;
+}
+
+.heart-btn::after {
+  left: 35px;
+  top: 0;
+}
+
+.heart-btn:hover {
+  transform: rotate(-45deg) scale(1.1);
+}
