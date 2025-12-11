@@ -42,3 +42,7 @@ button {
 .heart-btn:hover {
   transform: rotate(-45deg) scale(1.1);
 }
+
+#titre-roblox {
+  color: red;
+}
